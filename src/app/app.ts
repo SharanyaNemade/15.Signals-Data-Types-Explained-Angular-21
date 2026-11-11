@@ -1,10 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Effect } from './effect/effect';
+import { DataTypeSignals } from './data-type-signals/data-type-signals';
 
 
 @Component({
-  imports: [RouterOutlet,Effect],
+  imports: [RouterOutlet,DataTypeSignals],
   selector: 'app-root',
   standalone: true,
   styleUrl: './app.css',

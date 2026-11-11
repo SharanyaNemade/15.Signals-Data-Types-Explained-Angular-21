@@ -12,6 +12,11 @@ npm-debug.log
 yarn-error.log
 
 
+# Components
+
+src/app/effect/
+
+
 
 # IDEs and editors
 .idea/

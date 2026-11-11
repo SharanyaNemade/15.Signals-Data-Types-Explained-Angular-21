@@ -1,59 +1,262 @@
 # Angular21Tutorial
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.7.
 
-## Development server
+In Angular 21 Signals, the difference between `set()` and `update()` is simple:
 
-To start a local development server, run:
+- `set()` – Use when you want to assign a completely new value, and that value does not depend on the previous signal value.
+- `update()` – Use when the new value depends on the existing signal value.
 
-```bash
-ng serve
+Let's understand this with TypeScript examples.
+
+## 1. Signal data type vs. signal value data type
+
+In Angular, a signal has a type called `WritableSignal<T>`.
+
+Here, `T` represents the type of value stored inside the signal.
+
+typescript
+
+```typescript
+import { signal, WritableSignal } from '@angular/core';
+
+count: WritableSignal<number> = signal(10);
+name: WritableSignal<string> = signal('Angular');
+isActive: WritableSignal<boolean> = signal(true);
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Here:
 
-## Code scaffolding
+- `WritableSignal<number>` means the signal stores a number.
+- `WritableSignal<string>` means the signal stores a string.
+- `WritableSignal<boolean>` means the signal stores a boolean.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Important interview concept:
 
-```bash
-ng generate component component-name
+`WritableSignal<number>` is the signal's data type, whereas `number` is its value data type.
+
+## 2. How to define data types for signals
+
+You can define signal types explicitly or let TypeScript infer them.
+
+Explicit typing:
+
+typescript
+
+```typescript
+count: WritableSignal<number> = signal<number>(10);
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Type inference:
 
-```bash
-ng generate --help
+typescript
+
+```typescript
+count = signal(10);
 ```
 
-## Building
+Both approaches work.
 
-To build the project run:
+## 3. Union types in Angular Signals
 
-```bash
-ng build
+You can also use union types when a signal can hold multiple types of values.
+
+typescript
+
+```typescript
+value: WritableSignal<string | number | boolean> =
+  signal<string | number | boolean>(10);
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Now the signal can store:
 
-## Running unit tests
+typescript
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
+```typescript
+value.set('Angular');
+value.set(100);
+value.set(true);
 ```
 
-## Running end-to-end tests
+All three are valid.
 
-For end-to-end (e2e) testing, run:
+## 4. Data typing in Computed Signals
 
-```bash
-ng e2e
+Computed signals derive their values from other signals.
+
+typescript
+
+```typescript
+import { signal, computed } from '@angular/core';
+
+count = signal<number>(10);
+
+doubleCount = computed<number>(() => {
+  return this.count() * 2;
+});
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Here:
 
-## Additional Resources
+- `count` is a writable signal.
+- `doubleCount` is a computed signal.
+- `computed<number>()` specifies the computed signal's return type.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+A computed signal is read-only. You cannot call `set()` or `update()` on it.
+
+## 5. Difference between set() and update()
+
+This is the most important interview concept.
+
+### A. set() method
+
+Use `set()` when you already know the new value.
+
+typescript
+
+```typescript
+count = signal<number>(10);
+
+// Assign a new value
+this.count.set(50);
+```
+
+Another example:
+
+typescript
+
+```typescript
+name = signal<string>('John');
+
+this.name.set('David');
+```
+
+The new value doesn't depend on the previous value.
+
+### B. update() method
+
+Use `update()` when the new value depends on the existing value.
+
+typescript
+
+```typescript
+count = signal<number>(10);
+
+// Increment existing value
+this.count.update(currentValue => currentValue + 1);
+```
+
+Other examples:
+
+typescript
+
+```typescript
+this.count.update(value => value * 2);
+
+this.count.update(value => value - 5);
+```
+
+Here, `currentValue` represents the previous value of the signal.
+
+## 6. Real-world examples with arrays
+
+Consider an array signal containing employee names.
+
+typescript
+
+```typescript
+employees = signal<string[]>(['John', 'David']);
+```
+
+Using set():
+
+typescript
+
+```typescript
+this.employees.set(['John', 'David', 'Smith']);
+```
+
+You provide the complete new array.
+
+Using update():
+
+typescript
+
+```typescript
+this.employees.update(currentEmployees => [
+  ...currentEmployees,
+  'Smith'
+]);
+```
+
+You use the existing array and create a new array with an additional employee.
+
+Another example: Removing an employee.
+
+typescript
+
+```typescript
+this.employees.update(currentEmployees =>
+  currentEmployees.filter(name => name !== 'John')
+);
+```
+
+## 7. Interview comparison
+
+| Feature | set() | update() |
+| --- | --- | --- |
+| Purpose | Assign new value | Modify based on current value |
+| Previous value required? | No | Yes |
+| Accepts | Direct value | Callback function |
+| Arrays | Replace array | Derive a new array |
+| Numbers | Assign number | Increment/decrement |
+| Strings | Replace string | Append or modify |
+
+## 8. Angular Signals interview questions and answers
+
+Q1. When should we use set() in Angular Signals?
+
+Answer: When we want to assign a new value that does not depend on the previous value.
+
+Q2. When should we use update() in Angular Signals?
+
+Answer: When the new value depends on the existing signal value.
+
+Q3. Can we use set() and update() with arrays?
+
+Answer: Yes. Both support arrays. `set()` replaces the array, while `update()` lets us derive a new array using the existing one.
+
+Q4. Can we use update() with primitive values?
+
+Answer: Yes. We can use it with numbers, strings, and booleans.
+
+Q5. Can we use set() on computed signals?
+
+Answer: No. Computed signals are read-only.
+
+Q6. Does update() modify the original array automatically?
+
+Answer: No. Prefer creating a new array using spread syntax, `filter()`, or `map()` instead of mutating the existing array.
+
+## Final interview takeaway
+
+Use set()When the new value is independent of the previous value.
+
+typescript
+
+```typescript
+this.count.set(100);
+```
+
+Use update()When the new value depends on the previous value.
+
+typescript
+
+```typescript
+this.count.update(value => value + 1);
+```
+
+One-line interview answer:
+
+"In Angular 21 Signals, `set()` is used to assign a new value directly, whereas `update()` is used to calculate a new value based on the current signal value."
+
+Both methods are valid in Angular 21.

@@ -1,8 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { Effect } from './effect/effect';
+
 
 @Component({
-  imports: [RouterOutlet],
+  imports: [RouterOutlet,Effect],
   selector: 'app-root',
   standalone: true,
   styleUrl: './app.css',
@@ -10,8 +12,4 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
 
-  handleEvent(eventName:string)
-  {
-    console.log(eventName);
-  }
 }
